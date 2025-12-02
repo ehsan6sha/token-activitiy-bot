@@ -178,8 +178,8 @@ export async function executeBuy({ wallet, tokenAddress, amountUsd, slippageTole
   logger.info(`Required WETH: ${wethAmount.toFixed(6)} WETH`);
   
   // Validate balances
-  // Gas buffer: ~0.0003 ETH is typically enough for a swap on Base (low gas fees)
-  const gasBuffer = ethers.parseEther('0.0005');
+  // Gas buffer: Base has very low gas fees (~$0.001 per swap)
+  const gasBuffer = ethers.parseEther('0.00005');
   validateSufficientBalance(ethBalance, gasBuffer, 'ETH (for gas)');
   validateSufficientBalance(wethBalance, wethAmountWei, 'WETH');
 
@@ -323,6 +323,14 @@ export async function executeSell({ wallet, tokenAddress, slippageTolerance }, l
   }
 
   logger.info(`Token balance to sell: ${ethers.formatUnits(tokenBalance, tokenInfo.decimals)} ${tokenInfo.symbol}`);
+
+  // Step 2b: Check ETH balance for gas
+  const ethBalance = await getEthBalance(walletAddress, provider, logger);
+  logger.info(`Current ETH balance: ${ethers.formatEther(ethBalance)} ETH (for gas)`);
+  
+  // Gas buffer: Base has very low gas fees (~$0.001 per swap)
+  const gasBuffer = ethers.parseEther('0.00005');
+  validateSufficientBalance(ethBalance, gasBuffer, 'ETH (for gas)');
 
   // Step 3: Find best pool and get quote
   const { fee, amountOut } = await findBestPoolFee(
