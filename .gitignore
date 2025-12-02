@@ -17,9 +17,9 @@ private/
 # DEPENDENCIES
 # =============================================================================
 node_modules/
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
+# NOTE: package-lock.json should be committed for reproducible builds
 
 # =============================================================================
 # LOGS
