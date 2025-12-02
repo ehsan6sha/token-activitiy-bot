@@ -168,16 +168,19 @@ export async function executeBuy({ wallet, tokenAddress, amountUsd, slippageTole
   
   logger.info(`WETH amount to spend: ${wethAmount.toFixed(6)} WETH ($${amountUsd})`);
 
-  // Step 3: Check WETH balance
+  // Step 3: Check WETH and ETH balances
   const wethBalance = await getTokenBalance(WETH_ADDRESS, walletAddress, provider, logger);
-  
-  // Also check ETH for gas
   const ethBalance = await getEthBalance(walletAddress, provider, logger);
+  
+  // Log balances BEFORE validation so user can see what they have
+  logger.info(`Current WETH balance: ${ethers.formatEther(wethBalance)} WETH`);
+  logger.info(`Current ETH balance: ${ethers.formatEther(ethBalance)} ETH (for gas)`);
+  logger.info(`Required WETH: ${wethAmount.toFixed(6)} WETH`);
+  
+  // Validate balances
   const gasBuffer = ethers.parseEther('0.001');
   validateSufficientBalance(ethBalance, gasBuffer, 'ETH (for gas)');
   validateSufficientBalance(wethBalance, wethAmountWei, 'WETH');
-
-  logger.info(`WETH balance: ${ethers.formatEther(wethBalance)} WETH`);
 
   // Step 4: Find best pool and get quote
   const { fee, amountOut } = await findBestPoolFee(
