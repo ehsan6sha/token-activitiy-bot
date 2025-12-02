@@ -80,7 +80,7 @@ async function main() {
     setGitHubOutput('success', 'true');
     setGitHubOutput('tx_hash', result.txHash);
     setGitHubOutput('amount_usd', buyAmountUsd.toString());
-    setGitHubOutput('tokens_received', result.output.newBalance);
+    setGitHubOutput('tokens_received', result.output.newTokenBalance);
 
     // Write GitHub summary
     await writeGitHubSummary(generateSuccessSummary(result, correlationId, startTime));
@@ -154,8 +154,9 @@ function generateSuccessSummary(result, correlationId, startTime) {
 |----------|-------|
 | **Correlation ID** | \`${correlationId}\` |
 | **Token** | ${result.token.symbol} (${result.token.name}) |
-| **Amount Spent** | ${result.input.ethAmount} ETH (~$${result.input.usdAmount}) |
-| **Tokens Received** | ${result.output.newBalance} ${result.token.symbol} |
+| **Amount Spent** | ${result.input.wethAmount} WETH (~$${result.input.usdAmount}) |
+| **Tokens Received** | ${result.output.newTokenBalance} ${result.token.symbol} |
+| **WETH Balance** | ${result.output.newWethBalance} WETH |
 | **Pool Fee** | ${result.poolFee} |
 | **Gas Used** | ${result.gasUsed} |
 | **Block** | ${result.blockNumber} |

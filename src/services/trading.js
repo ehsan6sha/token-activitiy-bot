@@ -141,7 +141,8 @@ export function generateRandomBuyAmount() {
 // =============================================================================
 
 /**
- * Executes a buy operation (ETH -> Token)
+ * Executes a buy operation (WETH -> Token)
+ * Uses WETH directly from wallet instead of native ETH
  * @param {Object} params - Buy parameters
  * @param {ethers.Wallet} params.wallet - Wallet instance
  * @param {string} params.tokenAddress - Token to buy
@@ -154,31 +155,35 @@ export async function executeBuy({ wallet, tokenAddress, amountUsd, slippageTole
   const provider = wallet.provider;
   const walletAddress = await wallet.getAddress();
   
-  logger.info(`Starting BUY operation: $${amountUsd} worth of tokens`);
+  logger.info(`Starting BUY operation: $${amountUsd} worth of tokens (using WETH)`);
 
   // Step 1: Get token info
   const tokenInfo = await getTokenInfo(tokenAddress, provider, logger);
   logger.info(`Buying token: ${tokenInfo.symbol} (${tokenInfo.name})`);
 
-  // Step 2: Get ETH price and calculate ETH amount
+  // Step 2: Get ETH price and calculate WETH amount
   const ethPriceUsd = await getEthPriceUsd(provider, logger);
-  const ethAmount = amountUsd / ethPriceUsd;
-  const ethAmountWei = ethers.parseEther(ethAmount.toFixed(18));
+  const wethAmount = amountUsd / ethPriceUsd;
+  const wethAmountWei = ethers.parseEther(wethAmount.toFixed(18));
   
-  logger.info(`ETH amount to spend: ${ethAmount.toFixed(6)} ETH ($${amountUsd})`);
+  logger.info(`WETH amount to spend: ${wethAmount.toFixed(6)} WETH ($${amountUsd})`);
 
-  // Step 3: Check ETH balance
-  const ethBalance = await getEthBalance(walletAddress, provider, logger);
+  // Step 3: Check WETH balance
+  const wethBalance = await getTokenBalance(WETH_ADDRESS, walletAddress, provider, logger);
   
-  // Need extra for gas (estimate 0.001 ETH for gas)
-  const gasBuffer = ethers.parseEther('0.002');
-  validateSufficientBalance(ethBalance, ethAmountWei + gasBuffer, 'ETH');
+  // Also check ETH for gas
+  const ethBalance = await getEthBalance(walletAddress, provider, logger);
+  const gasBuffer = ethers.parseEther('0.001');
+  validateSufficientBalance(ethBalance, gasBuffer, 'ETH (for gas)');
+  validateSufficientBalance(wethBalance, wethAmountWei, 'WETH');
+
+  logger.info(`WETH balance: ${ethers.formatEther(wethBalance)} WETH`);
 
   // Step 4: Find best pool and get quote
   const { fee, amountOut } = await findBestPoolFee(
     WETH_ADDRESS,
     tokenAddress,
-    ethAmountWei,
+    wethAmountWei,
     provider,
     logger
   );
@@ -187,37 +192,40 @@ export async function executeBuy({ wallet, tokenAddress, amountUsd, slippageTole
   logger.info(`Expected tokens: ${ethers.formatUnits(amountOut, tokenInfo.decimals)} ${tokenInfo.symbol}`);
   logger.info(`Minimum tokens (with ${slippageTolerance}% slippage): ${ethers.formatUnits(minAmountOut, tokenInfo.decimals)}`);
 
-  // Step 5: Execute swap
+  // Step 5: Approve WETH spending (if needed)
+  await approveToken(
+    WETH_ADDRESS,
+    UNISWAP_V3_ROUTER,
+    wethAmountWei,
+    wallet,
+    logger
+  );
+
+  // Step 6: Execute swap (no ETH value - using WETH token)
   const router = new ethers.Contract(UNISWAP_V3_ROUTER, UNISWAP_V3_ROUTER_ABI, wallet);
-  const deadline = Math.floor(Date.now() / 1000) + TX_DEADLINE_MINUTES * 60;
 
   const swapParams = {
     tokenIn: WETH_ADDRESS,
     tokenOut: tokenAddress,
     fee,
     recipient: walletAddress,
-    amountIn: ethAmountWei,
+    amountIn: wethAmountWei,
     amountOutMinimum: minAmountOut,
     sqrtPriceLimitX96: 0n
   };
 
-  logger.info('Executing swap transaction...');
+  logger.info('Executing swap transaction (WETH -> Token)...');
 
   const tx = await executeWithRetry(
     async () => {
-      // Estimate gas
-      const gasEstimate = await router.exactInputSingle.estimateGas(swapParams, {
-        value: ethAmountWei
-      });
+      // Estimate gas (no value since we're using WETH token)
+      const gasEstimate = await router.exactInputSingle.estimateGas(swapParams);
       
       const gasLimit = (gasEstimate * BigInt(Math.floor(GAS_LIMIT_MULTIPLIER * 100))) / 100n;
       
       logger.debug(`Gas estimate: ${gasEstimate.toString()}, using limit: ${gasLimit.toString()}`);
 
-      return router.exactInputSingle(swapParams, {
-        value: ethAmountWei,
-        gasLimit
-      });
+      return router.exactInputSingle(swapParams, { gasLimit });
     },
     logger,
     'Buy swap'
@@ -226,15 +234,16 @@ export async function executeBuy({ wallet, tokenAddress, amountUsd, slippageTole
   logger.logTransaction(tx.hash, { 
     type: 'BUY',
     tokenSymbol: tokenInfo.symbol,
-    ethAmount: ethAmount.toFixed(6),
+    wethAmount: wethAmount.toFixed(6),
     usdAmount: amountUsd
   });
 
-  // Step 6: Wait for confirmation
+  // Step 7: Wait for confirmation
   const receipt = await waitForTransaction(tx, logger);
 
-  // Step 7: Get actual tokens received
-  const newBalance = await getTokenBalance(tokenAddress, walletAddress, provider, logger);
+  // Step 8: Get actual tokens received and new WETH balance
+  const newTokenBalance = await getTokenBalance(tokenAddress, walletAddress, provider, logger);
+  const newWethBalance = await getTokenBalance(WETH_ADDRESS, walletAddress, provider, logger);
   
   const result = {
     success: true,
@@ -250,14 +259,15 @@ export async function executeBuy({ wallet, tokenAddress, amountUsd, slippageTole
       decimals: tokenInfo.decimals
     },
     input: {
-      ethAmount: ethAmount.toFixed(6),
+      wethAmount: wethAmount.toFixed(6),
       usdAmount: amountUsd,
-      ethAmountWei: ethAmountWei.toString()
+      wethAmountWei: wethAmountWei.toString()
     },
     output: {
       expectedTokens: ethers.formatUnits(amountOut, tokenInfo.decimals),
       minTokens: ethers.formatUnits(minAmountOut, tokenInfo.decimals),
-      newBalance: ethers.formatUnits(newBalance, tokenInfo.decimals)
+      newTokenBalance: ethers.formatUnits(newTokenBalance, tokenInfo.decimals),
+      newWethBalance: ethers.formatEther(newWethBalance)
     },
     poolFee: `${fee / 10000}%`,
     timestamp: new Date().toISOString()
