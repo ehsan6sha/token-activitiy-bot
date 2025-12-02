@@ -178,7 +178,8 @@ export async function executeBuy({ wallet, tokenAddress, amountUsd, slippageTole
   logger.info(`Required WETH: ${wethAmount.toFixed(6)} WETH`);
   
   // Validate balances
-  const gasBuffer = ethers.parseEther('0.001');
+  // Gas buffer: ~0.0003 ETH is typically enough for a swap on Base (low gas fees)
+  const gasBuffer = ethers.parseEther('0.0005');
   validateSufficientBalance(ethBalance, gasBuffer, 'ETH (for gas)');
   validateSufficientBalance(wethBalance, wethAmountWei, 'WETH');
 
