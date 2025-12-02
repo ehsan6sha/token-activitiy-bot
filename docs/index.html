@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Activity Bot - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold">🤖 Token Activity Bot</h1>
+                    <p class="text-purple-100 mt-2">Automated token trading on Base Network</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="pulse-dot w-3 h-3 bg-green-400 rounded-full"></span>
+                    <span class="text-sm">Active</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Status Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Bot Status -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-500 text-sm font-medium">Bot Status</h3>
+                    <span class="text-2xl">🟢</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">Running</p>
+                <p class="text-sm text-gray-500 mt-1">Scheduled every 30 min</p>
+            </div>
+
+            <!-- Network -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-500 text-sm font-medium">Network</h3>
+                    <span class="text-2xl">⛓️</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">Base</p>
+                <p class="text-sm text-gray-500 mt-1">Chain ID: 8453</p>
+            </div>
+
+            <!-- Trading Strategy -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-500 text-sm font-medium">Strategy</h3>
+                    <span class="text-2xl">📊</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">$1-$10</p>
+                <p class="text-sm text-gray-500 mt-1">Random buy amount</p>
+            </div>
+        </div>
+
+        <!-- Schedule Info -->
+        <div class="bg-white rounded-xl p-6 card-shadow mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">📅 Trading Schedule</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-green-500 pl-4">
+                    <h3 class="font-semibold text-green-700">🟢 Buy Operations</h3>
+                    <p class="text-gray-600 mt-1">Every hour at :00 and :30</p>
+                    <p class="text-sm text-gray-500">Random amount between $1-$10</p>
+                </div>
+                <div class="border-l-4 border-red-500 pl-4">
+                    <h3 class="font-semibold text-red-700">🔴 Sell Operations</h3>
+                    <p class="text-gray-600 mt-1">Every hour at :15 and :45</p>
+                    <p class="text-sm text-gray-500">Sells all purchased tokens</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="bg-white rounded-xl p-6 card-shadow mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">⚙️ How It Works</h2>
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">1</div>
+                    <div class="ml-4">
+                        <h4 class="font-semibold text-gray-900">GitHub Actions Trigger</h4>
+                        <p class="text-gray-600 text-sm">Scheduled workflows run automatically every 30 minutes</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">2</div>
+                    <div class="ml-4">
+                        <h4 class="font-semibold text-gray-900">Secure Execution</h4>
+                        <p class="text-gray-600 text-sm">Private key stored in GitHub Secrets, never exposed</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">3</div>
+                    <div class="ml-4">
+                        <h4 class="font-semibold text-gray-900">Uniswap V3 Swap</h4>
+                        <p class="text-gray-600 text-sm">Trades executed via Uniswap V3 on Base network</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">4</div>
+                    <div class="ml-4">
+                        <h4 class="font-semibold text-gray-900">Comprehensive Logging</h4>
+                        <p class="text-gray-600 text-sm">All transactions logged with correlation IDs for tracking</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Features -->
+        <div class="bg-white rounded-xl p-6 card-shadow mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">🔒 Security Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                    <span class="text-green-500 mr-3">✓</span>
+                    <span class="text-gray-700">Private key stored in GitHub Secrets</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                    <span class="text-green-500 mr-3">✓</span>
+                    <span class="text-gray-700">Sensitive data masked in logs</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                    <span class="text-green-500 mr-3">✓</span>
+                    <span class="text-gray-700">No server-side storage</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                    <span class="text-green-500 mr-3">✓</span>
+                    <span class="text-gray-700">Isolated GitHub Actions environment</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                    <span class="text-green-500 mr-3">✓</span>
+                    <span class="text-gray-700">Gas price limits to prevent overspending</span>
+                </div>
+                <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                    <span class="text-green-500 mr-3">✓</span>
+                    <span class="text-gray-700">Slippage protection on all trades</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="bg-white rounded-xl p-6 card-shadow">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">🔗 Quick Links</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="https://github.com" target="_blank" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">📋</span>
+                    <div>
+                        <p class="font-semibold text-gray-900">View Actions</p>
+                        <p class="text-sm text-gray-500">Check workflow runs</p>
+                    </div>
+                </a>
+                <a href="https://basescan.org" target="_blank" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🔍</span>
+                    <div>
+                        <p class="font-semibold text-gray-900">BaseScan</p>
+                        <p class="text-sm text-gray-500">View transactions</p>
+                    </div>
+                </a>
+                <a href="https://app.uniswap.org" target="_blank" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🦄</span>
+                    <div>
+                        <p class="font-semibold text-gray-900">Uniswap</p>
+                        <p class="text-sm text-gray-500">DEX interface</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">Token Activity Bot - Automated Trading on Base Network</p>
+            <p class="text-xs mt-2">⚠️ Use at your own risk. This is experimental software.</p>
+        </div>
+    </footer>
+</body>
+</html>

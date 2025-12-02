@@ -1,0 +1,32 @@
+{
+  "name": "token-activity-bot",
+  "version": "1.0.0",
+  "description": "Automated token trading bot for Base network using GitHub Actions",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "buy": "node src/actions/buy.js",
+    "sell": "node src/actions/sell.js",
+    "test": "node src/test/dry-run.js",
+    "validate": "node src/utils/validate-config.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "ethers": "^6.9.0",
+    "winston": "^3.11.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "ethereum",
+    "base",
+    "trading",
+    "defi",
+    "uniswap"
+  ],
+  "author": "",
+  "license": "MIT",
+  "private": true
+}
